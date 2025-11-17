@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -40,6 +41,9 @@ public class AuthService {
 
     private static final int MAX_FAILED_ATTEMPTS = 5;
     static final long LOCK_TIME_DURATION = 5 * 60 * 1000;
+
+    @Value("${FRONTEND_BASE_URI}")
+    private String frontendBaseUri;
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -287,7 +291,7 @@ public class AuthService {
         user.setResetToken(resetToken);
         userRepository.save(user);
 
-        String resetLink = "http://localhost:5173/reset-password?token=" + resetToken;
+        String resetLink = frontendBaseUri+"/reset-password?token=" + resetToken;
         try {
             emailService.sendEmail(user.getEmail(), "Reset Password",
                     "Click the link to reset your password: " + resetLink);

@@ -34,6 +34,8 @@ public class LeaveScheduler {
         System.setProperty("SWO_PORT", dotenv.get("SWO_PORT", System.getenv("SWO_PORT")));
         System.setProperty("SWO_TOKEN", dotenv.get("SWO_TOKEN", System.getenv("SWO_TOKEN")));
         System.setProperty("APP_NAME", dotenv.get("APP_NAME", System.getenv("APP_NAME")));
+        // Frontend URI
+        System.setProperty("FRONTEND_BASE_URI", dotenv.get("FRONTEND_BASE_URI", System.getenv("FRONTEND_BASE_URI")));
 
         SpringApplication.run(LeaveScheduler.class, args);
     }
