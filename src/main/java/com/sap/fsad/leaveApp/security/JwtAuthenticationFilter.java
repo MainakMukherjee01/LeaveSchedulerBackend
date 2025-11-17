@@ -29,7 +29,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String requestURI = request.getRequestURI();
 
-        if (requestURI.startsWith("/h2-console") || requestURI.startsWith("/v3/api-docs")
+        if (requestURI.startsWith("/h2-console") || requestURI.startsWith(
+                "/robots933456.txt") || requestURI.startsWith("/v3/api-docs")
                 || requestURI.startsWith("/swagger-ui") || requestURI.startsWith("/api/auth/login")
                 || requestURI.startsWith("/api/auth/register")
                 || requestURI.startsWith("/api/auth/forgot-password")
