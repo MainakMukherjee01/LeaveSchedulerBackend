@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener"/>
+  <property name="SWO_HOST" value="${SWO_HOST:-syslog.collector.ap-01.cloud.solarwinds.com}"/>
+  <property name="SWO_PORT" value="${SWO_PORT:-6514}"/>
+  <property name="SWO_TOKEN" value="${SWO_TOKEN:-sZKDX3CAO8tIETVyQMPiFCTZ3W2e1a_QmQ16e2MUUfcBInKX-8IjrCuxkFoVcFdnZlzrk3E}"/>
+  <property name="APP_NAME" value="${APP_NAME:-leave-scheduler}"/>
+
+  <property name="CONSOLE_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>
+  <property name="SYSLOG_PATTERN" value="%d{MMM dd HH:mm:ss} %property{HOSTNAME} ${APP_NAME}: %-5level %logger{30} - %msg [${SWO_TOKEN}@41058]%n%xEx"/>
+
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>${CONSOLE_PATTERN}</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="SYSLOG" class="com.papertrailapp.logback.Syslog4jAppender">
+    <layout class="ch.qos.logback.classic.PatternLayout">
+      <pattern>${SYSLOG_PATTERN}</pattern>
+    </layout>
+
+    <syslogConfig class="org.productivity.java.syslog4j.impl.net.tcp.ssl.SSLTCPNetSyslogConfig">
+      <host>${SWO_HOST}</host>
+      <port>${SWO_PORT}</port>
+    </syslogConfig>
+  </appender>
+
+  <root level="INFO">
+    <appender-ref ref="STDOUT"/>
+    <appender-ref ref="SYSLOG"/>
+  </root>
+
+</configuration>
