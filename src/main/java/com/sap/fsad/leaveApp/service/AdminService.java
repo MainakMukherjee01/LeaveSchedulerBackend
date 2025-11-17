@@ -1,9 +1,20 @@
 package com.sap.fsad.leaveApp.service;
 
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.sap.fsad.leaveApp.dto.request.LeavePolicyRequest;
-import com.sap.fsad.leaveApp.dto.response.DashboardStatsResponse;
 import com.sap.fsad.leaveApp.dto.request.UserUpdateRequest;
 import com.sap.fsad.leaveApp.dto.response.ApiResponse;
+import com.sap.fsad.leaveApp.dto.response.DashboardStatsResponse;
 import com.sap.fsad.leaveApp.dto.response.UserResponse;
 import com.sap.fsad.leaveApp.exception.BadRequestException;
 import com.sap.fsad.leaveApp.exception.ResourceNotFoundException;
@@ -17,16 +28,6 @@ import com.sap.fsad.leaveApp.repository.AuditLogRepository;
 import com.sap.fsad.leaveApp.repository.LeaveApplicationRepository;
 import com.sap.fsad.leaveApp.repository.LeavePolicyRepository;
 import com.sap.fsad.leaveApp.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class AdminService {
@@ -106,9 +107,11 @@ public class AdminService {
             throw new BadRequestException("You don't have permission to view all users");
         }
 
-        return userRepository.findAll().stream()
+        List<UserResponse> users = userRepository.findAll().stream()
                 .map(this::convertToUserResponse)
                 .collect(Collectors.toList());
+
+        return users;
     }
 
     /**
@@ -220,8 +223,8 @@ public class AdminService {
 
         LeavePolicy savedPolicy = leavePolicyRepository.save(leavePolicy);
 
-        logAdminAction(request.getId() == null ? "CREATE_LEAVE_POLICY" : "UPDATE_LEAVE_POLICY",
-                "Policy ID: " + savedPolicy.getId() + ", Type: " + savedPolicy.getLeaveType());
+        String action = request.getId() == null ? "CREATE_LEAVE_POLICY" : "UPDATE_LEAVE_POLICY";
+        logAdminAction(action, "Policy ID: " + savedPolicy.getId() + ", Type: " + savedPolicy.getLeaveType());
 
         return savedPolicy;
     }
@@ -237,8 +240,10 @@ public class AdminService {
             throw new BadRequestException("You don't have permission to view leave policy details");
         }
 
-        return leavePolicyRepository.findById(id)
+        LeavePolicy policy = leavePolicyRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("LeavePolicy", "id", id));
+
+        return policy;
     }
 
     /**
@@ -252,7 +257,9 @@ public class AdminService {
             throw new BadRequestException("You don't have permission to view all leave policies");
         }
 
-        return leavePolicyRepository.findAll();
+        List<LeavePolicy> policies = leavePolicyRepository.findAll();
+
+        return policies;
     }
 
     /**
@@ -276,6 +283,7 @@ public class AdminService {
             leavePolicy.setIsActive(false);
             leavePolicy.setUpdatedAt(LocalDateTime.now());
             leavePolicyRepository.save(leavePolicy);
+            
             return new ApiResponse(true, "Leave policy marked as inactive successfully");
         }
 

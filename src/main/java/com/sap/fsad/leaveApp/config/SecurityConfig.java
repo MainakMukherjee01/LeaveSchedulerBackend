@@ -1,8 +1,7 @@
 package com.sap.fsad.leaveApp.config;
 
-import com.sap.fsad.leaveApp.security.JwtAuthenticationFilter;
-import com.sap.fsad.leaveApp.security.RateLimitingFilter;
-import com.sap.fsad.leaveApp.security.UserDetailsServiceImpl;
+import java.util.Arrays;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,7 +21,9 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
+import com.sap.fsad.leaveApp.security.JwtAuthenticationFilter;
+import com.sap.fsad.leaveApp.security.RateLimitingFilter;
+import com.sap.fsad.leaveApp.security.UserDetailsServiceImpl;
 
 @Configuration
 @EnableWebSecurity
@@ -70,6 +71,7 @@ public class SecurityConfig {
                         .requestMatchers("/").permitAll()
                         .requestMatchers("/api/auth/logout").authenticated()
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/app-logs/**").permitAll()
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()

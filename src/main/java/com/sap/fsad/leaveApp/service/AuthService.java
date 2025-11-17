@@ -148,7 +148,11 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         user.setFullName(registerRequest.getFullName());
         user.setEmail(registerRequest.getEmail());
-        user.setRoles(registerRequest.getRoles());
+        if (registerRequest.getRoles() != null && !registerRequest.getRoles().isEmpty()) {
+            user.setRoles(registerRequest.getRoles());
+        } else {
+            user.getRoles().add(UserRole.EMPLOYEE);
+        }
         user.setDepartment(registerRequest.getDepartment());
         user.setManager(manager);
         user.setJoiningDate(registerRequest.getJoiningDate());
@@ -198,7 +202,11 @@ public class AuthService {
             user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
             user.setFullName(registerRequest.getFullName());
             user.setEmail(registerRequest.getEmail());
-            user.setRoles(registerRequest.getRoles());
+            if (registerRequest.getRoles() != null && !registerRequest.getRoles().isEmpty()) {
+                user.setRoles(registerRequest.getRoles());
+            } else {
+                user.getRoles().add(UserRole.EMPLOYEE);
+            }
             user.setDepartment(registerRequest.getDepartment());
             user.setManager(manager);
             user.setJoiningDate(registerRequest.getJoiningDate());
@@ -224,9 +232,14 @@ public class AuthService {
      */
     private void initializeLeaveBalances(User user) {
         List<LeavePolicy> policies = new ArrayList<>();
-        for (UserRole role : user.getRoles()) {
-            policies.addAll(leavePolicyRepository.findByApplicableRolesAndActive(role));
+        
+        // Check if user has roles, if not, skip initialization
+        if (user.getRoles() != null && !user.getRoles().isEmpty()) {
+            for (UserRole role : user.getRoles()) {
+                policies.addAll(leavePolicyRepository.findByApplicableRolesAndActive(role));
+            }
         }
+        
         int currentYear = LocalDateTime.now().getYear();
 
         for (LeavePolicy policy : policies) {

@@ -1,5 +1,16 @@
 package com.sap.fsad.leaveApp.service;
 
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import com.sap.fsad.leaveApp.dto.request.PasswordChangeRequest;
 import com.sap.fsad.leaveApp.dto.response.ApiResponse;
 import com.sap.fsad.leaveApp.dto.response.LeaveBalanceResponse;
@@ -10,16 +21,6 @@ import com.sap.fsad.leaveApp.model.LeaveBalance;
 import com.sap.fsad.leaveApp.model.User;
 import com.sap.fsad.leaveApp.repository.LeaveBalanceRepository;
 import com.sap.fsad.leaveApp.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -63,9 +64,11 @@ public class UserService {
      * Get all users by manager ID
      */
     public List<UserResponse> getUsersByManagerId(Long managerId) {
-        return userRepository.findByManagerId(managerId).stream()
+        List<UserResponse> users = userRepository.findByManagerId(managerId).stream()
                 .map(this::convertToUserResponse)
                 .collect(Collectors.toList());
+
+        return users;
     }
 
     /**
@@ -101,9 +104,11 @@ public class UserService {
 
         List<LeaveBalance> leaveBalances = leaveBalanceRepository.findByUserAndYear(currentUser, currentYear);
 
-        return leaveBalances.stream()
+        List<LeaveBalanceResponse> balanceResponses = leaveBalances.stream()
                 .map(this::convertToLeaveBalanceResponse)
                 .collect(Collectors.toList());
+
+        return balanceResponses;
     }
 
     /**
@@ -115,9 +120,11 @@ public class UserService {
 
         List<LeaveBalance> leaveBalances = leaveBalanceRepository.findByUserAndYear(user, currentYear);
 
-        return leaveBalances.stream()
+        List<LeaveBalanceResponse> balanceResponses = leaveBalances.stream()
                 .map(this::convertToLeaveBalanceResponse)
                 .collect(Collectors.toList());
+
+        return balanceResponses;
     }
 
     /**

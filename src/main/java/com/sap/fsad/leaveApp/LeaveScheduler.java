@@ -2,7 +2,9 @@ package com.sap.fsad.leaveApp;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import io.github.cdimascio.dotenv.Dotenv;
@@ -10,6 +12,8 @@ import io.github.cdimascio.dotenv.Dotenv;
 @SpringBootApplication(scanBasePackages = "com.sap.fsad.leaveApp")
 @EnableScheduling
 @EnableRetry
+@EnableAspectJAutoProxy
+@EnableAsync
 public class LeaveScheduler {
     public static void main(String[] args) {
         Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
