@@ -16,7 +16,6 @@ import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.DeadlockLoserDataAccessException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
@@ -425,16 +424,6 @@ public class GlobalExceptionHandler {
                                 build(LocalDateTime.now(), "Resource is locked, please retry",
                                                 request.getDescription(false)),
                                 HttpStatus.LOCKED);
-        }
-
-        @ExceptionHandler(DeadlockLoserDataAccessException.class)
-        public ResponseEntity<CustomErrorResponse> handleDeadlock(DeadlockLoserDataAccessException ex,
-                        WebRequest request) {
-                logger.error("Deadlock: {}", ex.getMessage());
-                return new ResponseEntity<>(
-                                build(LocalDateTime.now(), "Deadlock detected. Retry the operation.",
-                                                request.getDescription(false)),
-                                HttpStatus.CONFLICT);
         }
 
         @ExceptionHandler(ResourceLockedException.class)
