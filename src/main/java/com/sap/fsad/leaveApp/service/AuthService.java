@@ -1,5 +1,7 @@
 package com.sap.fsad.leaveApp.service;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -74,11 +76,29 @@ public class AuthService {
         String jwt = token.replace("Bearer ", "");
 
         BlacklistedToken blacklistedToken = new BlacklistedToken();
-        blacklistedToken.setToken(jwt);
+        blacklistedToken.setToken(hashToken(jwt));
         blacklistedToken.setExpiryDate(tokenProvider.getExpiryDateFromToken(jwt));
         blacklistTokenRepository.save(blacklistedToken);
 
         return new ApiResponse(true, "User logged out successfully");
+    }
+
+    private String hashToken(String token) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(token.getBytes(StandardCharsets.UTF_8));
+            return bytesToHex(hash);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to hash token", e);
+        }
+    }
+    
+    private String bytesToHex(byte[] bytes) {
+        StringBuilder result = new StringBuilder();
+        for (byte b : bytes) {
+            result.append(String.format("%02x", b));
+        }
+        return result.toString();
     }
 
     /**
