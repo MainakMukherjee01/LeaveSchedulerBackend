@@ -315,6 +315,10 @@ public class AppLogService {
         return appLogRepository.findByCorrelationIdOrderByTimestamp(correlationId);
     }
 
+    public AppLog getLogById(Long id) {
+        return appLogRepository.findById(id).orElse(null);
+    }
+
     /**
      * Clean up old logs (maintenance operation)
      */

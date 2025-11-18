@@ -119,7 +119,10 @@ public class AppLogController {
     @GetMapping("/{id}")
     @Operation(summary = "Get specific log entry by ID")
     public ResponseEntity<AppLog> getLogById(@PathVariable Long id) {
-        // This would need to be implemented in the service
+        AppLog log = appLogService.getLogById(id);
+        if (log != null) {
+            return ResponseEntity.ok(log);
+        }
         return ResponseEntity.notFound().build();
     }
 
