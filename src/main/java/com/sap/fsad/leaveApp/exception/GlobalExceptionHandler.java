@@ -58,6 +58,7 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
@@ -716,6 +717,16 @@ public class GlobalExceptionHandler {
                 return new ResponseEntity<>(
                                 build(LocalDateTime.now(), "Multipart request error", request.getDescription(false)),
                                 HttpStatus.BAD_REQUEST);
+        }
+
+        @ExceptionHandler(NoResourceFoundException.class)
+        public ResponseEntity<CustomErrorResponse> handleNoResourceFound(NoResourceFoundException ex,
+                        WebRequest request) {
+                logger.error("No Resource Found: {}", ex.getMessage());
+                return new ResponseEntity<>(
+                                build(LocalDateTime.now(), "API endpoint not found: " + ex.getResourcePath(),
+                                                request.getDescription(false)),
+                                HttpStatus.NOT_FOUND);
         }
 
         // Fallback
