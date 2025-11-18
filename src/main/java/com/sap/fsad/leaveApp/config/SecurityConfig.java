@@ -85,8 +85,8 @@ public class SecurityConfig {
 
         // Add JWT filter, but exclude /h2-console/**
         http
-            .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-            .addFilterBefore(rateLimitingFilter(), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(rateLimitingFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

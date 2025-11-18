@@ -28,10 +28,9 @@ public class AppLogAspect {
     // Removed generic controller aspect to prevent duplicate logging
     // Only using @LogOperation specific aspect for precise control
 
-
-
     /**
-     * Extract entity ID from method parameters (looking for @PathVariable with common ID names)
+     * Extract entity ID from method parameters (looking for @PathVariable with
+     * common ID names)
      */
     private String extractEntityId(ProceedingJoinPoint joinPoint) {
         try {
@@ -39,28 +38,28 @@ public class AppLogAspect {
             if (method == null) {
                 return null;
             }
-            
+
             Object[] args = joinPoint.getArgs();
-            
+
             for (int i = 0; i < method.getParameters().length; i++) {
                 if (method.getParameters()[i].isAnnotationPresent(PathVariable.class)) {
                     PathVariable pathVar = method.getParameters()[i].getAnnotation(PathVariable.class);
                     String varName = pathVar.value().isEmpty() ? pathVar.name() : pathVar.value();
-                    
+
                     // Check if it's likely an ID parameter
-                    if ((varName.toLowerCase().contains("id") || 
-                         varName.equalsIgnoreCase("id") || 
-                         varName.toLowerCase().endsWith("id")) && args[i] != null) {
+                    if ((varName.toLowerCase().contains("id") ||
+                            varName.equalsIgnoreCase("id") ||
+                            varName.toLowerCase().endsWith("id")) && args[i] != null) {
                         return args[i].toString();
                     }
                 }
             }
-            
+
             // Fallback: look for any parameter named 'id' in method signature
             for (int i = 0; i < method.getParameters().length; i++) {
                 String paramName = method.getParameters()[i].getName();
-                if ((paramName.equalsIgnoreCase("id") || paramName.toLowerCase().endsWith("id")) 
-                    && args[i] != null) {
+                if ((paramName.equalsIgnoreCase("id") || paramName.toLowerCase().endsWith("id"))
+                        && args[i] != null) {
                     return args[i].toString();
                 }
             }
@@ -77,7 +76,7 @@ public class AppLogAspect {
         try {
             Method method = getMethod(joinPoint);
             Object[] args = joinPoint.getArgs();
-            
+
             for (int i = 0; i < method.getParameters().length; i++) {
                 if (method.getParameters()[i].isAnnotationPresent(RequestBody.class)) {
                     return args[i];
@@ -113,11 +112,11 @@ public class AppLogAspect {
                 MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
                 return methodSignature.getMethod();
             }
-            
+
             // Fallback: try to get method by name and parameter types
             String methodName = joinPoint.getSignature().getName();
             Class<?>[] parameterTypes = new Class<?>[joinPoint.getArgs().length];
-            
+
             // Handle null arguments by getting parameter types from signature if possible
             Object[] args = joinPoint.getArgs();
             for (int i = 0; i < args.length; i++) {
@@ -128,7 +127,7 @@ public class AppLogAspect {
                     parameterTypes[i] = Object.class;
                 }
             }
-            
+
             return joinPoint.getTarget().getClass().getMethod(methodName, parameterTypes);
         } catch (Exception e) {
             // Final fallback: try to find method by name only (may not be unique)
@@ -136,8 +135,8 @@ public class AppLogAspect {
                 String methodName = joinPoint.getSignature().getName();
                 Method[] methods = joinPoint.getTarget().getClass().getMethods();
                 for (Method method : methods) {
-                    if (method.getName().equals(methodName) && 
-                        method.getParameterCount() == joinPoint.getArgs().length) {
+                    if (method.getName().equals(methodName) &&
+                            method.getParameterCount() == joinPoint.getArgs().length) {
                         return method;
                     }
                 }
@@ -152,7 +151,8 @@ public class AppLogAspect {
      * Pointcut for methods annotated with @LogOperation
      */
     @Pointcut("@annotation(com.sap.fsad.leaveApp.logging.LogOperation)")
-    public void logOperationMethods() {}
+    public void logOperationMethods() {
+    }
 
     /**
      * Around advice for methods with custom @LogOperation annotation
@@ -162,14 +162,14 @@ public class AppLogAspect {
         long startTime = System.currentTimeMillis();
         Object result = null;
         Throwable error = null;
-        
+
         Object requestBody = null;
         if (logOperation.includeRequestBody()) {
             requestBody = extractRequestBody(joinPoint);
         }
-        
+
         String entityId = extractEntityId(joinPoint);
-        
+
         // Extract HTTP method, request URI, and other details from current request
         String httpMethod = null;
         String requestUri = null;
@@ -177,9 +177,8 @@ public class AppLogAspect {
         String userAgent = null;
         String correlationId = null;
         try {
-            org.springframework.web.context.request.ServletRequestAttributes attrs = 
-                (org.springframework.web.context.request.ServletRequestAttributes) 
-                org.springframework.web.context.request.RequestContextHolder.currentRequestAttributes();
+            org.springframework.web.context.request.ServletRequestAttributes attrs = (org.springframework.web.context.request.ServletRequestAttributes) org.springframework.web.context.request.RequestContextHolder
+                    .currentRequestAttributes();
             if (attrs != null && attrs.getRequest() != null) {
                 jakarta.servlet.http.HttpServletRequest request = attrs.getRequest();
                 httpMethod = request.getMethod();
@@ -191,7 +190,7 @@ public class AppLogAspect {
         } catch (Exception e) {
             // Ignore if no request context available
         }
-        
+
         // If entityType is empty, try to infer from operation name or request URI
         String effectiveEntityType = logOperation.entityType();
         if (effectiveEntityType == null || effectiveEntityType.trim().isEmpty()) {
@@ -208,19 +207,19 @@ public class AppLogAspect {
             long executionTime = System.currentTimeMillis() - startTime;
             String status = error == null ? "SUCCESS" : "FAILURE";
             String message = error == null ? "Operation completed successfully" : error.getMessage();
-            
+
             Object responseBody = null;
             if (logOperation.includeResponseBody() && result != null) {
                 responseBody = extractResponseBody(result);
             }
 
             if (logOperation.async()) {
-                appLogService.logWithFullContext(logOperation.value(), effectiveEntityType, 
-                                           entityId, status, message, requestBody, responseBody, executionTime, 
-                                           httpMethod, requestUri, ipAddress, userAgent, correlationId);
+                appLogService.logWithFullContext(logOperation.value(), effectiveEntityType,
+                        entityId, status, message, requestBody, responseBody, executionTime,
+                        httpMethod, requestUri, ipAddress, userAgent, correlationId);
             } else {
-                appLogService.logSyncWithContext(logOperation.value(), effectiveEntityType, 
-                                    entityId, status, message, httpMethod, requestUri);
+                appLogService.logSyncWithContext(logOperation.value(), effectiveEntityType,
+                        entityId, status, message, httpMethod, requestUri);
             }
         }
     }
@@ -232,29 +231,42 @@ public class AppLogAspect {
         if (operation == null) {
             return "";
         }
-        
+
         String op = operation.toUpperCase();
-        
+
         // Map common operations to entity types
-        if (op.contains("USER")) return "User";
-        if (op.contains("LEAVE")) return "Leave";
-        if (op.contains("HOLIDAY")) return "Holiday";
-        if (op.contains("NOTIFICATION")) return "Notification";
-        if (op.contains("APPROVAL")) return "LeaveApplication";
-        if (op.contains("REPORT")) return "Report";
-        if (op.contains("ADMIN")) return "Admin";
-        
+        if (op.contains("USER"))
+            return "User";
+        if (op.contains("LEAVE"))
+            return "Leave";
+        if (op.contains("HOLIDAY"))
+            return "Holiday";
+        if (op.contains("NOTIFICATION"))
+            return "Notification";
+        if (op.contains("APPROVAL"))
+            return "LeaveApplication";
+        if (op.contains("REPORT"))
+            return "Report";
+        if (op.contains("ADMIN"))
+            return "Admin";
+
         // Try to infer from request URI if available
         if (requestUri != null) {
             String uri = requestUri.toLowerCase();
-            if (uri.contains("/users")) return "User";
-            if (uri.contains("/leaves") || uri.contains("/leave")) return "Leave";
-            if (uri.contains("/holidays")) return "Holiday";
-            if (uri.contains("/notifications")) return "Notification";
-            if (uri.contains("/approval")) return "LeaveApplication";
-            if (uri.contains("/reports")) return "Report";
+            if (uri.contains("/users"))
+                return "User";
+            if (uri.contains("/leaves") || uri.contains("/leave"))
+                return "Leave";
+            if (uri.contains("/holidays"))
+                return "Holiday";
+            if (uri.contains("/notifications"))
+                return "Notification";
+            if (uri.contains("/approval"))
+                return "LeaveApplication";
+            if (uri.contains("/reports"))
+                return "Report";
         }
-        
+
         return ""; // Return empty string if can't infer
     }
 
@@ -266,12 +278,12 @@ public class AppLogAspect {
         if (xForwardedFor != null && !xForwardedFor.isEmpty() && !"unknown".equalsIgnoreCase(xForwardedFor)) {
             return xForwardedFor.split(",")[0].trim();
         }
-        
+
         String xRealIp = request.getHeader("X-Real-IP");
         if (xRealIp != null && !xRealIp.isEmpty() && !"unknown".equalsIgnoreCase(xRealIp)) {
             return xRealIp;
         }
-        
+
         return request.getRemoteAddr();
     }
 

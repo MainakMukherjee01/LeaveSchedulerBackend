@@ -92,7 +92,7 @@ public class AuthService {
             throw new RuntimeException("Failed to hash token", e);
         }
     }
-    
+
     private String bytesToHex(byte[] bytes) {
         StringBuilder result = new StringBuilder();
         for (byte b : bytes) {
@@ -256,14 +256,14 @@ public class AuthService {
      */
     private void initializeLeaveBalances(User user) {
         List<LeavePolicy> policies = new ArrayList<>();
-        
+
         // Check if user has roles, if not, skip initialization
         if (user.getRoles() != null && !user.getRoles().isEmpty()) {
             for (UserRole role : user.getRoles()) {
                 policies.addAll(leavePolicyRepository.findByApplicableRolesAndActive(role));
             }
         }
-        
+
         int currentYear = LocalDateTime.now().getYear();
 
         for (LeavePolicy policy : policies) {
@@ -311,7 +311,7 @@ public class AuthService {
         user.setResetToken(resetToken);
         userRepository.save(user);
 
-        String resetLink = frontendBaseUri+"/reset-password?token=" + resetToken;
+        String resetLink = frontendBaseUri + "/reset-password?token=" + resetToken;
         try {
             emailService.sendEmail(user.getEmail(), "Reset Password",
                     "Click the link to reset your password: " + resetLink);

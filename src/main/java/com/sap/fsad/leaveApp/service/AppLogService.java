@@ -33,7 +33,8 @@ public class AppLogService {
     private final ObjectMapper objectMapper;
 
     /**
-     * Log operation synchronously (for critical operations that need immediate logging)
+     * Log operation synchronously (for critical operations that need immediate
+     * logging)
      */
     public void logSync(String operation, String entityType, String entityId, String status, String message) {
         try {
@@ -46,13 +47,14 @@ public class AppLogService {
     }
 
     /**
-     * Log operation synchronously with HTTP context (for critical operations that need immediate logging)
+     * Log operation synchronously with HTTP context (for critical operations that
+     * need immediate logging)
      */
     public void logSyncWithContext(String operation, String entityType, String entityId, String status, String message,
-                                  String httpMethod, String requestUri) {
+            String httpMethod, String requestUri) {
         try {
-            AppLog appLog = createAppLogWithContext(operation, entityType, entityId, status, message, 
-                                                  null, null, null, httpMethod, requestUri);
+            AppLog appLog = createAppLogWithContext(operation, entityType, entityId, status, message,
+                    null, null, null, httpMethod, requestUri);
             appLogRepository.save(appLog);
         } catch (Exception e) {
             // Silent fail to avoid breaking main operation
@@ -77,11 +79,11 @@ public class AppLogService {
      * Log operation with request/response details (for comprehensive audit)
      */
     @Async
-    public void logWithDetails(String operation, String entityType, String entityId, String status, 
-                              String message, Object requestBody, Object responseBody, Long executionTimeMs) {
+    public void logWithDetails(String operation, String entityType, String entityId, String status,
+            String message, Object requestBody, Object responseBody, Long executionTimeMs) {
         try {
-            AppLog appLog = createAppLog(operation, entityType, entityId, status, message, 
-                                       requestBody, responseBody, executionTimeMs);
+            AppLog appLog = createAppLog(operation, entityType, entityId, status, message,
+                    requestBody, responseBody, executionTimeMs);
             appLogRepository.save(appLog);
         } catch (Exception e) {
             log.error("Failed to save detailed app log: {}", e.getMessage(), e);
@@ -89,15 +91,16 @@ public class AppLogService {
     }
 
     /**
-     * Log operation with request/response details and HTTP context (for comprehensive audit)
+     * Log operation with request/response details and HTTP context (for
+     * comprehensive audit)
      */
     @Async
-    public void logWithDetailsAndContext(String operation, String entityType, String entityId, String status, 
-                                        String message, Object requestBody, Object responseBody, Long executionTimeMs,
-                                        String httpMethod, String requestUri) {
+    public void logWithDetailsAndContext(String operation, String entityType, String entityId, String status,
+            String message, Object requestBody, Object responseBody, Long executionTimeMs,
+            String httpMethod, String requestUri) {
         try {
-            AppLog appLog = createAppLogWithContext(operation, entityType, entityId, status, message, 
-                                                  requestBody, responseBody, executionTimeMs, httpMethod, requestUri);
+            AppLog appLog = createAppLogWithContext(operation, entityType, entityId, status, message,
+                    requestBody, responseBody, executionTimeMs, httpMethod, requestUri);
             appLogRepository.save(appLog);
         } catch (Exception e) {
             log.error("Failed to save detailed app log with context: {}", e.getMessage(), e);
@@ -105,17 +108,18 @@ public class AppLogService {
     }
 
     /**
-     * Log operation with full request details captured from aspect (for comprehensive audit)
+     * Log operation with full request details captured from aspect (for
+     * comprehensive audit)
      */
     @Async
-    public void logWithFullContext(String operation, String entityType, String entityId, String status, 
-                                  String message, Object requestBody, Object responseBody, Long executionTimeMs,
-                                  String httpMethod, String requestUri, String ipAddress, String userAgent, 
-                                  String correlationId) {
+    public void logWithFullContext(String operation, String entityType, String entityId, String status,
+            String message, Object requestBody, Object responseBody, Long executionTimeMs,
+            String httpMethod, String requestUri, String ipAddress, String userAgent,
+            String correlationId) {
         try {
-            AppLog appLog = createAppLogWithFullContext(operation, entityType, entityId, status, message, 
-                                                      requestBody, responseBody, executionTimeMs, httpMethod, 
-                                                      requestUri, ipAddress, userAgent, correlationId);
+            AppLog appLog = createAppLogWithFullContext(operation, entityType, entityId, status, message,
+                    requestBody, responseBody, executionTimeMs, httpMethod,
+                    requestUri, ipAddress, userAgent, correlationId);
             appLogRepository.save(appLog);
         } catch (Exception e) {
             log.error("Failed to save detailed app log with full context: {}", e.getMessage(), e);
@@ -148,17 +152,17 @@ public class AppLogService {
     /**
      * Create AppLog object with full context details (no request lookup needed)
      */
-    private AppLog createAppLogWithFullContext(String operation, String entityType, String entityId, String status, 
-                                             String message, Object requestBody, Object responseBody, Long executionTimeMs,
-                                             String httpMethod, String requestUri, String ipAddress, String userAgent,
-                                             String correlationId) {
+    private AppLog createAppLogWithFullContext(String operation, String entityType, String entityId, String status,
+            String message, Object requestBody, Object responseBody, Long executionTimeMs,
+            String httpMethod, String requestUri, String ipAddress, String userAgent,
+            String correlationId) {
         User currentUser = getCurrentUserSafely();
-        
+
         // Ensure required fields are never null
         String safeOperation = operation != null ? operation : "UNKNOWN_OPERATION";
         String safeStatus = status != null ? status : "INFO";
         String safeMessage = message != null ? message : "No message provided";
-        
+
         return AppLog.builder()
                 .timestamp(LocalDateTime.now())
                 .operation(safeOperation)
@@ -166,7 +170,8 @@ public class AppLogService {
                 .entityId(entityId)
                 .status(safeStatus)
                 .message(safeMessage)
-                .userId(currentUser != null && currentUser.getId() != null ? currentUser.getId().toString() : "anonymous")
+                .userId(currentUser != null && currentUser.getId() != null ? currentUser.getId().toString()
+                        : "anonymous")
                 .username(currentUser != null ? currentUser.getUsername() : "anonymous")
                 .department(currentUser != null ? currentUser.getDepartment() : null)
                 .httpMethod(httpMethod)
@@ -183,16 +188,16 @@ public class AppLogService {
     /**
      * Create AppLog object with comprehensive details
      */
-    private AppLog createAppLog(String operation, String entityType, String entityId, String status, 
-                               String message, Object requestBody, Object responseBody, Long executionTimeMs) {
+    private AppLog createAppLog(String operation, String entityType, String entityId, String status,
+            String message, Object requestBody, Object responseBody, Long executionTimeMs) {
         User currentUser = getCurrentUserSafely();
         HttpServletRequest request = getCurrentRequest();
-        
+
         // Ensure required fields are never null
         String safeOperation = operation != null ? operation : "UNKNOWN_OPERATION";
         String safeStatus = status != null ? status : "INFO";
         String safeMessage = message != null ? message : "No message provided";
-        
+
         return AppLog.builder()
                 .timestamp(LocalDateTime.now())
                 .operation(safeOperation)
@@ -200,15 +205,17 @@ public class AppLogService {
                 .entityId(entityId)
                 .status(safeStatus)
                 .message(safeMessage)
-                .userId(currentUser != null && currentUser.getId() != null ? currentUser.getId().toString() : "anonymous")
+                .userId(currentUser != null && currentUser.getId() != null ? currentUser.getId().toString()
+                        : "anonymous")
                 .username(currentUser != null ? currentUser.getUsername() : "anonymous")
                 .department(currentUser != null ? currentUser.getDepartment() : null)
                 .httpMethod(request != null ? request.getMethod() : null)
                 .requestUri(request != null ? request.getRequestURI() : null)
                 .ipAddress(request != null ? getClientIpAddress(request) : null)
                 .userAgent(request != null ? request.getHeader("User-Agent") : null)
-                .sessionId(request != null ? request.getSession(false) != null ? 
-                          request.getSession(false).getId() : null : null)
+                .sessionId(
+                        request != null ? request.getSession(false) != null ? request.getSession(false).getId() : null
+                                : null)
                 .correlationId(request != null ? getOrCreateCorrelationId(request) : null)
                 .requestBody(requestBody != null ? serializeObject(requestBody) : null)
                 .responseBody(responseBody != null ? serializeObject(responseBody) : null)
@@ -220,17 +227,17 @@ public class AppLogService {
     /**
      * Create AppLog object with comprehensive details and provided HTTP context
      */
-    private AppLog createAppLogWithContext(String operation, String entityType, String entityId, String status, 
-                                          String message, Object requestBody, Object responseBody, Long executionTimeMs,
-                                          String httpMethod, String requestUri) {
+    private AppLog createAppLogWithContext(String operation, String entityType, String entityId, String status,
+            String message, Object requestBody, Object responseBody, Long executionTimeMs,
+            String httpMethod, String requestUri) {
         User currentUser = getCurrentUserSafely();
         HttpServletRequest request = getCurrentRequest();
-        
+
         // Ensure required fields are never null
         String safeOperation = operation != null ? operation : "UNKNOWN_OPERATION";
         String safeStatus = status != null ? status : "INFO";
         String safeMessage = message != null ? message : "No message provided";
-        
+
         return AppLog.builder()
                 .timestamp(LocalDateTime.now())
                 .operation(safeOperation)
@@ -238,15 +245,17 @@ public class AppLogService {
                 .entityId(entityId)
                 .status(safeStatus)
                 .message(safeMessage)
-                .userId(currentUser != null && currentUser.getId() != null ? currentUser.getId().toString() : "anonymous")
+                .userId(currentUser != null && currentUser.getId() != null ? currentUser.getId().toString()
+                        : "anonymous")
                 .username(currentUser != null ? currentUser.getUsername() : "anonymous")
                 .department(currentUser != null ? currentUser.getDepartment() : null)
                 .httpMethod(httpMethod != null ? httpMethod : (request != null ? request.getMethod() : null))
                 .requestUri(requestUri != null ? requestUri : (request != null ? request.getRequestURI() : null))
                 .ipAddress(request != null ? getClientIpAddress(request) : null)
                 .userAgent(request != null ? request.getHeader("User-Agent") : null)
-                .sessionId(request != null ? request.getSession(false) != null ? 
-                          request.getSession(false).getId() : null : null)
+                .sessionId(
+                        request != null ? request.getSession(false) != null ? request.getSession(false).getId() : null
+                                : null)
                 .correlationId(request != null ? getOrCreateCorrelationId(request) : null)
                 .requestBody(requestBody != null ? serializeObject(requestBody) : null)
                 .responseBody(responseBody != null ? serializeObject(responseBody) : null)
@@ -258,12 +267,12 @@ public class AppLogService {
     /**
      * Search logs with comprehensive filters
      */
-    public Page<AppLog> searchLogs(String operation, String userId, String username, String status, 
-                                  String httpMethod, String entityType, String department,
-                                  LocalDateTime startDate, LocalDateTime endDate, String ipAddress,
-                                  Pageable pageable) {
-        return appLogRepository.findWithFilters(operation, userId, username, status, httpMethod, 
-                                              entityType, department, startDate, endDate, ipAddress, pageable);
+    public Page<AppLog> searchLogs(String operation, String userId, String username, String status,
+            String httpMethod, String entityType, String department,
+            LocalDateTime startDate, LocalDateTime endDate, String ipAddress,
+            Pageable pageable) {
+        return appLogRepository.findWithFilters(operation, userId, username, status, httpMethod,
+                entityType, department, startDate, endDate, ipAddress, pageable);
     }
 
     /**
@@ -365,12 +374,12 @@ public class AppLogService {
         if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
             return xForwardedFor.split(",")[0].trim();
         }
-        
+
         String xRealIp = request.getHeader("X-Real-IP");
         if (xRealIp != null && !xRealIp.isEmpty()) {
             return xRealIp;
         }
-        
+
         return request.getRemoteAddr();
     }
 
@@ -386,7 +395,7 @@ public class AppLogService {
         try {
             Map<String, String> headers = new HashMap<>();
             Enumeration<String> headerNames = request.getHeaderNames();
-            
+
             while (headerNames.hasMoreElements()) {
                 String headerName = headerNames.nextElement();
                 // Only include important headers, skip sensitive ones
@@ -394,7 +403,7 @@ public class AppLogService {
                     headers.put(headerName, request.getHeader(headerName));
                 }
             }
-            
+
             return objectMapper.writeValueAsString(headers);
         } catch (Exception e) {
             return null;
@@ -404,17 +413,18 @@ public class AppLogService {
     private boolean isImportantHeader(String headerName) {
         String lowerCaseHeader = headerName.toLowerCase();
         return lowerCaseHeader.equals("content-type") ||
-               lowerCaseHeader.equals("accept") ||
-               lowerCaseHeader.equals("user-agent") ||
-               lowerCaseHeader.equals("x-forwarded-for") ||
-               lowerCaseHeader.equals("x-real-ip") ||
-               lowerCaseHeader.equals("x-correlation-id");
+                lowerCaseHeader.equals("accept") ||
+                lowerCaseHeader.equals("user-agent") ||
+                lowerCaseHeader.equals("x-forwarded-for") ||
+                lowerCaseHeader.equals("x-real-ip") ||
+                lowerCaseHeader.equals("x-correlation-id");
     }
 
     private String serializeObject(Object obj) {
         try {
-            if (obj == null) return null;
-            
+            if (obj == null)
+                return null;
+
             // Limit serialized size to prevent database issues
             String serialized = objectMapper.writeValueAsString(obj);
             if (serialized.length() > 10000) { // 10KB limit

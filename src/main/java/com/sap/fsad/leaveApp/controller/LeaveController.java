@@ -126,7 +126,7 @@ public class LeaveController {
     @Operation(summary = "Get leave schedules and holidays for calendar integration")
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<List<CalendarEventResponse>> getCalendarEvents(
-            @RequestParam(required = false) Long userId ,
+            @RequestParam(required = false) Long userId,
             @RequestParam(required = false) String department,
             @RequestParam(required = true) Integer month,
             @RequestParam(required = true) Integer year) {

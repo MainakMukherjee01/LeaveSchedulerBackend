@@ -11,9 +11,13 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface LogOperation {
-    String value();              // operation name
-    String entityType() default "";  // entity type being operated on
+    String value(); // operation name
+
+    String entityType() default ""; // entity type being operated on
+
     boolean includeRequestBody() default true;
+
     boolean includeResponseBody() default true;
-    boolean async() default true;   // whether to log asynchronously
+
+    boolean async() default true; // whether to log asynchronously
 }

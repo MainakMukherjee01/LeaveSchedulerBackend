@@ -41,7 +41,7 @@ public class NotificationService {
         notification.setUpdatedAt(LocalDateTime.now());
 
         Notification savedNotification = notificationRepository.save(notification);
-        
+
         return savedNotification;
     }
 
@@ -169,7 +169,7 @@ public class NotificationService {
     public void markNotificationAsRead(Long notificationId) {
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Notification not found"));
-        
+
         notification.setIsRead(true);
         notification.setUpdatedAt(LocalDateTime.now());
         notificationRepository.save(notification);
@@ -182,12 +182,12 @@ public class NotificationService {
     public void markAllNotificationsAsRead() {
         User currentUser = userService.getCurrentUser();
         List<Notification> notifications = notificationRepository.findByUserAndIsReadFalse(currentUser);
-        
+
         for (Notification notification : notifications) {
             notification.setIsRead(true);
             notification.setUpdatedAt(LocalDateTime.now());
         }
-        
+
         notificationRepository.saveAll(notifications);
     }
 }

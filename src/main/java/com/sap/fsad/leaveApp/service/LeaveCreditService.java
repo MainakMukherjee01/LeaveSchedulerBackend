@@ -193,7 +193,8 @@ public class LeaveCreditService {
                 notificationService.createSpecialLeaveCreditedNotification(user, leaveType, amount, reason);
                 emailService.sendSpecialLeaveCreditEmail(user, leaveType, amount, reason);
 
-                responses.add(new ApiResponse(true, "Special leave credited successfully for user: " + user.getFullName()));
+                responses.add(
+                        new ApiResponse(true, "Special leave credited successfully for user: " + user.getFullName()));
             } catch (Exception e) {
                 responses.add(new ApiResponse(false,
                         "Failed to credit special leave for user ID: " + userId + ". Error: " + e.getMessage()));

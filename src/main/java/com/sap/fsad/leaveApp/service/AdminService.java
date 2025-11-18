@@ -160,7 +160,7 @@ public class AdminService {
                     .orElseThrow(() -> new ResourceNotFoundException("Manager", "id", request.getManagerId()));
 
             // Validate manager role - must be MANAGER or higher
-            if (!manager.getRoles().contains(UserRole.MANAGER) && 
+            if (!manager.getRoles().contains(UserRole.MANAGER) &&
                     !manager.getRoles().contains(UserRole.ADMIN)) {
                 throw new BadRequestException("Manager must have MANAGER role or higher");
             }
@@ -283,7 +283,7 @@ public class AdminService {
             leavePolicy.setIsActive(false);
             leavePolicy.setUpdatedAt(LocalDateTime.now());
             leavePolicyRepository.save(leavePolicy);
-            
+
             return new ApiResponse(true, "Leave policy marked as inactive successfully");
         }
 

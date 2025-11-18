@@ -44,7 +44,7 @@ public class UserController {
         return ResponseEntity.ok(balances);
     }
 
-        @LogOperation("GET_USER_LEAVE_BALANCE_BY_ID")
+    @LogOperation("GET_USER_LEAVE_BALANCE_BY_ID")
     @GetMapping("/{userId}/leave-balance")
     @Operation(summary = "Get user leave balance by ID")
     @SecurityRequirement(name = "bearerAuth")
@@ -53,7 +53,7 @@ public class UserController {
         return ResponseEntity.ok(balances);
     }
 
-        @LogOperation("GET_ALL_USERS")
+    @LogOperation("GET_ALL_USERS")
     @GetMapping("/all")
     @Operation(summary = "Get all users")
     @SecurityRequirement(name = "bearerAuth")
@@ -62,7 +62,7 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
-        @LogOperation("GET_MANAGED_USERS")
+    @LogOperation("GET_MANAGED_USERS")
     @GetMapping("/managed")
     @Operation(summary = "Get managed users")
     @SecurityRequirement(name = "bearerAuth")

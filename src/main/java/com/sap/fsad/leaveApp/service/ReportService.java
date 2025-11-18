@@ -81,7 +81,7 @@ public class ReportService {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         workbook.write(out);
         workbook.close();
-        
+
         return out.toByteArray();
     }
 
@@ -102,7 +102,7 @@ public class ReportService {
         }
 
         document.close();
-        
+
         return out.toByteArray();
     }
 }

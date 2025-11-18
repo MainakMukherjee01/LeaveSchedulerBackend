@@ -47,15 +47,13 @@ public class AppLogController {
             @Parameter(description = "Filter by entity type") @RequestParam(required = false) String entityType,
             @Parameter(description = "Filter by department") @RequestParam(required = false) String department,
             @Parameter(description = "Filter by IP address") @RequestParam(required = false) String ipAddress,
-            @Parameter(description = "Start date filter (ISO format)") @RequestParam(required = false) 
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
-            @Parameter(description = "End date filter (ISO format)") @RequestParam(required = false) 
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
-        
+            @Parameter(description = "Start date filter (ISO format)") @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @Parameter(description = "End date filter (ISO format)") @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
+
         Sort sort = Sort.by(sortDir.equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC, sortBy);
-        Page<AppLog> logs = appLogService.searchLogs(operation, userId, username, status, httpMethod, 
-                                                    entityType, department, startDate, endDate, ipAddress,
-                                                    PageRequest.of(page, size, sort));
+        Page<AppLog> logs = appLogService.searchLogs(operation, userId, username, status, httpMethod,
+                entityType, department, startDate, endDate, ipAddress,
+                PageRequest.of(page, size, sort));
         return ResponseEntity.ok(logs);
     }
 
@@ -71,7 +69,7 @@ public class AppLogController {
     public ResponseEntity<Page<AppLog>> getRecentFailures(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        
+
         Page<AppLog> failures = appLogService.getRecentFailures(PageRequest.of(page, size));
         return ResponseEntity.ok(failures);
     }
@@ -81,7 +79,7 @@ public class AppLogController {
     public ResponseEntity<Page<AppLog>> getAuthenticationLogs(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        
+
         Page<AppLog> authLogs = appLogService.getAuthenticationLogs(PageRequest.of(page, size));
         return ResponseEntity.ok(authLogs);
     }
@@ -91,7 +89,7 @@ public class AppLogController {
     public ResponseEntity<Page<AppLog>> getCriticalOperations(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        
+
         Page<AppLog> criticalOps = appLogService.getCriticalOperations(PageRequest.of(page, size));
         return ResponseEntity.ok(criticalOps);
     }
@@ -102,7 +100,7 @@ public class AppLogController {
             @Parameter(description = "Threshold in milliseconds") @RequestParam(defaultValue = "5000") Long thresholdMs,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        
+
         Page<AppLog> slowOps = appLogService.getSlowOperations(thresholdMs, PageRequest.of(page, size));
         return ResponseEntity.ok(slowOps);
     }
@@ -111,7 +109,7 @@ public class AppLogController {
     @Operation(summary = "Get logs by correlation ID for request tracing")
     public ResponseEntity<List<AppLog>> getLogsByCorrelationId(
             @Parameter(description = "Correlation ID to trace") @PathVariable String correlationId) {
-        
+
         List<AppLog> traceLogs = appLogService.getLogsByCorrelationId(correlationId);
         return ResponseEntity.ok(traceLogs);
     }
@@ -130,7 +128,7 @@ public class AppLogController {
     @Operation(summary = "Clean up old logs")
     public ResponseEntity<String> cleanupOldLogs(
             @Parameter(description = "Number of days to keep") @RequestParam(defaultValue = "90") int daysToKeep) {
-        
+
         appLogService.cleanupOldLogs(daysToKeep);
         return ResponseEntity.ok("Old logs cleanup initiated for logs older than " + daysToKeep + " days");
     }
@@ -140,8 +138,9 @@ public class AppLogController {
     public ResponseEntity<Page<AppLog>> getMyActivity(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        
-        // This would need current user context - we'll implement this when integrating with services
+
+        // This would need current user context - we'll implement this when integrating
+        // with services
         return ResponseEntity.notFound().build();
     }
 
@@ -149,15 +148,15 @@ public class AppLogController {
     @Operation(summary = "Get dashboard data for log monitoring")
     public ResponseEntity<Map<String, Object>> getDashboardData() {
         Map<String, Object> stats = appLogService.getStatistics();
-        
+
         // Add recent failures count
         Page<AppLog> recentFailures = appLogService.getRecentFailures(PageRequest.of(0, 1));
         stats.put("hasRecentFailures", recentFailures.getTotalElements() > 0);
-        
-        // Add slow operations count  
+
+        // Add slow operations count
         Page<AppLog> slowOps = appLogService.getSlowOperations(5000L, PageRequest.of(0, 1));
         stats.put("slowOperationsCount", slowOps.getTotalElements());
-        
+
         return ResponseEntity.ok(stats);
     }
 }

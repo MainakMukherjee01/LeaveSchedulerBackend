@@ -71,7 +71,7 @@ public class UserService {
         }
 
         List<User> users = userRepository.findAllWithRoles();
-        
+
         if (users.isEmpty()) {
             throw new ResourceNotFoundException("No users found in the system");
         }
@@ -105,15 +105,17 @@ public class UserService {
             throw new BadRequestException("Manager with id " + managerId + " is not active");
         }
 
-        // Permission check - users can only view their own managed users unless they're admin
+        // Permission check - users can only view their own managed users unless they're
+        // admin
         User currentUser = getCurrentUser();
         if (!hasAdminRole(currentUser) && !currentUser.getId().equals(managerId)) {
             throw new AccessDeniedException("You can only view users managed by yourself");
         }
 
         List<User> managedUsers = userRepository.findByManagerIdWithRoles(managerId);
-        
-        // Optional: Throw exception if no managed users (or return empty list based on requirements)
+
+        // Optional: Throw exception if no managed users (or return empty list based on
+        // requirements)
         if (managedUsers.isEmpty()) {
             throw new ResourceNotFoundException("No users found under manager with id: " + managerId);
         }
@@ -124,7 +126,8 @@ public class UserService {
     }
 
     /**
-     * Alternative version - returns empty list instead of throwing exception for no managed users
+     * Alternative version - returns empty list instead of throwing exception for no
+     * managed users
      */
     @Transactional(readOnly = true)
     public List<UserResponse> getUsersByManagerIdSafe(Long managerId) {
@@ -171,8 +174,8 @@ public class UserService {
      * Helper method to check if user has manager role (includes admin)
      */
     private boolean hasManagerRole(User user) {
-        return user.getRoles() != null && 
-               (user.getRoles().contains(UserRole.MANAGER) || user.getRoles().contains(UserRole.ADMIN));
+        return user.getRoles() != null &&
+                (user.getRoles().contains(UserRole.MANAGER) || user.getRoles().contains(UserRole.ADMIN));
     }
 
     /**
@@ -251,7 +254,7 @@ public class UserService {
         response.setUsername(user.getUsername());
         response.setFullName(user.getFullName());
         response.setEmail(user.getEmail());
-        
+
         // Safely handle roles with proper error handling
         try {
             response.setRoles(user.getRoles() != null ? new HashSet<>(user.getRoles()) : Collections.emptySet());
@@ -259,7 +262,7 @@ public class UserService {
             logger.warn("Error loading roles for user {}: {}", user.getId(), e.getMessage());
             response.setRoles(Collections.emptySet());
         }
-        
+
         response.setDepartment(user.getDepartment());
         response.setManagerId(user.getManager() != null ? user.getManager().getId() : null);
         response.setManagerName(user.getManager() != null ? user.getManager().getFullName() : null);
