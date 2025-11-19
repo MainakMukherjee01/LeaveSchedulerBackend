@@ -82,7 +82,7 @@ public class AuthController {
         return ResponseEntity.ok(new ApiResponse(true, "Password reset successfully"));
     }
 
-    @LogOperation("USER_LOGOUT")
+    @LogOperation(value = "USER_LOGOUT", entityType = "User", async = false)
     @PostMapping("/logout")
     @Operation(summary = "User logout")
     @SecurityRequirement(name = "bearerAuth")
