@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sap.fsad.leaveApp.model.AppLog;
 import com.sap.fsad.leaveApp.model.User;
 import com.sap.fsad.leaveApp.repository.AppLogRepository;
+import com.sap.fsad.leaveApp.security.CustomUserDetails;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -346,14 +347,17 @@ public class AppLogService {
      */
     private User getCurrentUserSafely() {
         try {
-            String username = SecurityContextHolder.getContext().getAuthentication().getName();
-            if (username == null || username.equals("anonymousUser")) {
+            Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+            if (principal == null || principal.equals("anonymousUser") || !(principal instanceof CustomUserDetails)) {
                 return null;
             }
-            // Create a minimal User object with just the username for logging
-            // We avoid full User object lookup to prevent circular dependency
+
+            CustomUserDetails userDetails = (CustomUserDetails) principal;
+
             User user = new User();
-            user.setUsername(username);
+            user.setId(userDetails.getId());
+            user.setUsername(userDetails.getUsername());
             return user;
         } catch (Exception e) {
             return null;
