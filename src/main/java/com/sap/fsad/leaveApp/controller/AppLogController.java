@@ -7,7 +7,10 @@ import java.util.Map;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,10 +34,11 @@ import lombok.RequiredArgsConstructor;
 public class AppLogController {
 
     private final AppLogService appLogService;
+    private final PagedResourcesAssembler<AppLog> pagedResourcesAssembler;
 
     @GetMapping
     @Operation(summary = "Get application logs with filtering and pagination")
-    public ResponseEntity<Page<AppLog>> getLogs(
+    public ResponseEntity<PagedModel<EntityModel<AppLog>>> getLogs(
             @Parameter(description = "Page number (0-based)") @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "Page size") @RequestParam(defaultValue = "20") int size,
             @Parameter(description = "Sort field") @RequestParam(defaultValue = "timestamp") String sortBy,
@@ -54,7 +58,7 @@ public class AppLogController {
         Page<AppLog> logs = appLogService.searchLogs(operation, userId, username, status, httpMethod,
                 entityType, department, startDate, endDate, ipAddress,
                 PageRequest.of(page, size, sort));
-        return ResponseEntity.ok(logs);
+        return ResponseEntity.ok(pagedResourcesAssembler.toModel(logs));
     }
 
     @GetMapping("/statistics")
@@ -66,43 +70,43 @@ public class AppLogController {
 
     @GetMapping("/recent-failures")
     @Operation(summary = "Get recent failed operations for monitoring")
-    public ResponseEntity<Page<AppLog>> getRecentFailures(
+    public ResponseEntity<PagedModel<EntityModel<AppLog>>> getRecentFailures(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
         Page<AppLog> failures = appLogService.getRecentFailures(PageRequest.of(page, size));
-        return ResponseEntity.ok(failures);
+        return ResponseEntity.ok(pagedResourcesAssembler.toModel(failures));
     }
 
     @GetMapping("/authentication")
     @Operation(summary = "Get authentication related logs")
-    public ResponseEntity<Page<AppLog>> getAuthenticationLogs(
+    public ResponseEntity<PagedModel<EntityModel<AppLog>>> getAuthenticationLogs(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
 
         Page<AppLog> authLogs = appLogService.getAuthenticationLogs(PageRequest.of(page, size));
-        return ResponseEntity.ok(authLogs);
+        return ResponseEntity.ok(pagedResourcesAssembler.toModel(authLogs));
     }
 
     @GetMapping("/critical")
     @Operation(summary = "Get critical operations (admin, delete, update)")
-    public ResponseEntity<Page<AppLog>> getCriticalOperations(
+    public ResponseEntity<PagedModel<EntityModel<AppLog>>> getCriticalOperations(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
 
         Page<AppLog> criticalOps = appLogService.getCriticalOperations(PageRequest.of(page, size));
-        return ResponseEntity.ok(criticalOps);
+        return ResponseEntity.ok(pagedResourcesAssembler.toModel(criticalOps));
     }
 
     @GetMapping("/slow-operations")
     @Operation(summary = "Get slow operations for performance monitoring")
-    public ResponseEntity<Page<AppLog>> getSlowOperations(
+    public ResponseEntity<PagedModel<EntityModel<AppLog>>> getSlowOperations(
             @Parameter(description = "Threshold in milliseconds") @RequestParam(defaultValue = "5000") Long thresholdMs,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
         Page<AppLog> slowOps = appLogService.getSlowOperations(thresholdMs, PageRequest.of(page, size));
-        return ResponseEntity.ok(slowOps);
+        return ResponseEntity.ok(pagedResourcesAssembler.toModel(slowOps));
     }
 
     @GetMapping("/trace/{correlationId}")
@@ -135,7 +139,7 @@ public class AppLogController {
 
     @GetMapping("/my-activity")
     @Operation(summary = "Get current user's activity logs")
-    public ResponseEntity<Page<AppLog>> getMyActivity(
+    public ResponseEntity<PagedModel<EntityModel<AppLog>>> getMyActivity(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
 
