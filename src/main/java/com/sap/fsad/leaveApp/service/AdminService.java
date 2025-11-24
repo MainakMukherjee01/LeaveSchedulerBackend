@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -201,9 +202,23 @@ public class AdminService {
 
         // Create new or update existing policy
         if (request.getId() != null) {
+            // Update existing policy
             leavePolicy = leavePolicyRepository.findById(request.getId())
                     .orElseThrow(() -> new ResourceNotFoundException("LeavePolicy", "id", request.getId()));
         } else {
+            // Check if policy already exists for the given leave type and any of the roles
+            for (UserRole role : request.getApplicableRoles()) {
+                Optional<LeavePolicy> existingPolicy = leavePolicyRepository
+                        .findByLeaveTypeAndApplicableRolesContaining(request.getLeaveType(), role);
+                if (existingPolicy.isPresent()) {
+                    throw new BadRequestException(
+                            "Leave policy for " + request.getLeaveType() + 
+                            " already exists for role " + role + 
+                            ". Policy ID: " + existingPolicy.get().getId());
+                }
+            }
+            
+            // Create new policy
             leavePolicy = new LeavePolicy();
             leavePolicy.setCreatedAt(LocalDateTime.now());
         }
